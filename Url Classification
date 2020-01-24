@@ -1,0 +1,30 @@
+import pandas as pd
+from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn.svm import SVC
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report,confusion_matrix
+
+
+df=pd.read_csv('web1.csv')
+X_train, X_test, y_train, y_test = train_test_split(df['url'], df['category'], test_size = 0.2)
+
+
+count_vect = CountVectorizer()
+tfidf_transformer = TfidfTransformer()
+X_train_counts = count_vect.fit_transform(X_train)
+X_train_tfidf = tfidf_transformer.fit_transform(X_train_counts)
+
+x_test_counts = count_vect.transform(X_test)
+x_test_tfidf = tfidf_transformer.transform(x_test_counts)
+
+SVM = SVC(C=1.0, kernel='linear', degree=3, gamma='auto')
+SVM.fit(X_train_tfidf,y_train)
+
+y_pred=SVM.predict(x_test_tfidf)
+print(confusion_matrix(y_test, y_pred))
+
+print(classification_report(y_test,y_pred))
+
+yser = pd.Series(y_pred)
+yser.value_counts()
